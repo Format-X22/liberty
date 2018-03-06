@@ -24,3 +24,7 @@ describe "Time util" do
 		expect(obj3.now).to_not eq(now)
 	end
 end
+
+describe 'Logger util' do
+	#
+end
