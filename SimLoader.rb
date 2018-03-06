@@ -1,0 +1,3 @@
+class SimLoader
+	#
+end
