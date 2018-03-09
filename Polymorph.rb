@@ -19,44 +19,69 @@ class Calm
 
 end
 
+class Trigger
+
+	attr_reader :tick, :prepare_tick, :direction
+
+	def update
+		#
+	end
+
+end
+
+class Tick
+	attr_reader :index,
+		:open, :close, :high, :low,
+		:red, :green,
+		:ma_cross, :last_ma_cross
+
+	def update
+		#
+	end
+
+	def break?
+		#
+	end
+
+
+end
+
 class PolymorphLang
 
 	def initialize
-		@tick = nil
-		@trigger = nil
+		@tick = Tick.new
+		@trigger = Trigger.new
 		@connector = nil
 		@calm = Calm.new(0) # todo
 	end
 
 	def prepare_cycle
-		@tick.form
-		@trigger.calc
+		@tick.update
+		@trigger.update
 	end
 
 	
 
 	def make_long_position
-		#
+		@connector.long
 	end
 
 	def make_short_position
-		#
-	end
-
-	def so_fast_return?
-		#
-	end
-
-	def double_ma_cross?
-		#
+		@connector.short
 	end
 
 	def make_zero_position
-		#
+		@connector.zero
 	end
 
+	def double_ma_cross?
+		@connector.position_tick.index < @tick.last_ma_cross
+	end
 
-
+	def so_fast_return?
+		@trigger.prepare_tick.index > @trigger.tick.index and
+		@trigger.prepare_tick.index - @trigger.tick.index <= (@opt.fast_trig_return + 1)
+	end
 
 	def current_is_break?
 		@tick.break?
@@ -91,11 +116,11 @@ class PolymorphLang
 	end
 
 	def trig?
-		@trigger.index == @tick.index
+		@trigger.tick.index == @tick.index
 	end
 
 	def so_fast_trig?
-		@trigger.tick.index - @trigger.prepare_tick.index <= (@opt.fast_trig_interval + 1)
+		@trigger.tick.index - @trigger.prepare_tick.index <= (@opt.fast_trig + 1)
 	end
 
 	def squeeze?
