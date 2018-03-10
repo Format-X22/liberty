@@ -1,0 +1,3 @@
+class Bitmex
+	#
+end
