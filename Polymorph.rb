@@ -23,6 +23,10 @@ class Trigger
 
 	attr_reader :tick, :prepare_tick, :direction
 
+	def initialize(tick_obj)
+		@tick_obj = tick_obj
+	end
+
 	def update
 		#
 	end
@@ -33,25 +37,80 @@ class Tick
 	attr_reader :index,
 		:open, :close, :high, :low,
 		:red, :green,
-		:ma_cross, :last_ma_cross
+		:ma_cross, :prev_ma_cross
+
+	def initialize(connector)
+		@connector = connector
+	end
 
 	def update
-		#
+		_, @open, @close, @high, @low = @connector.raw_tick
+		@index = @connector.raw_tick_index
+
+		# TODO MA
 	end
 
 	def break?
-		#
+		(high > green and low < green) or
+		(high > red   and low < red  )
 	end
 
 
 end
 
+class Connector
+	attr_reader :position, :position_tick
+	
+	def long
+		#
+	end
+
+	def short
+		#
+	end
+
+	def zero
+		#
+	end
+
+	def make_position_failed?
+		#
+	end
+
+	def position_closed?
+		#
+	end
+
+	def raw_tick
+		#
+	end
+
+	def raw_tick_index
+		#
+	end
+
+end
+
+class Options
+	attr_accessor :fast_trig, :fast_trig_return
+	# TODO
+
+	def initialize(raw_options)
+		raw_options.each do |key, value|
+			name = "#{key}=".to_sym
+			self.send(name, value)
+		end
+	end
+
+end
+
 class PolymorphLang
 
-	def initialize
-		@tick = Tick.new
-		@trigger = Trigger.new
-		@connector = nil
+	def initialize(raw_options)
+		@opt = Options.new(raw_options)
+		@connector = Connector.new
+		@tick = Tick.new(@connector)
+		@trigger = Trigger.new(@tick)
 		@calm = Calm.new(0) # todo
 	end
 
@@ -75,7 +134,7 @@ class PolymorphLang
 	end
 
 	def double_ma_cross?
-		@connector.position_tick.index < @tick.last_ma_cross
+		@connector.position_tick.index < @tick.prev_ma_cross
 	end
 
 	def so_fast_return?
@@ -148,7 +207,7 @@ end
 class Polymorph < PolymorphLang
 	attr_accessor :state
 
-	def initialize
+	def initialize(raw_options)
 		super
 		state :wait
 	end
