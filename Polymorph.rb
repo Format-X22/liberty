@@ -60,7 +60,11 @@ end
 
 class Connector
 	attr_reader :position, :position_tick
-	
+
+	def initialize(proxy)
+		#
+	end
+
 	def long
 		#
 	end
@@ -106,9 +110,9 @@ end
 
 class PolymorphLang
 
-	def initialize(raw_options)
+	def initialize(proxy, raw_options)
 		@opt = Options.new(raw_options)
-		@connector = Connector.new
+		@connector = Connector.new(proxy)
 		@tick = Tick.new(@connector)
 		@trigger = Trigger.new(@tick)
 		@calm = Calm.new(0) # todo
@@ -207,7 +211,7 @@ end
 class Polymorph < PolymorphLang
 	attr_accessor :state
 
-	def initialize(raw_options)
+	def initialize(proxy, raw_options)
 		super
 		state :wait
 	end
@@ -224,7 +228,7 @@ class Polymorph < PolymorphLang
 				end
 
 			when :open
-				if trig_is_double_break? and not current_move_under_trig?
+				if (trig_is_double_break? and not current_move_under_trig?) or so_fast_return?
 					state :calm
 				else
 					if trig_direction == :up
