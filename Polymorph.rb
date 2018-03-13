@@ -119,11 +119,19 @@ class Connector
 		#
 	end
 
+	def small
+		#
+	end
+
 	def zero
 		#
 	end
 
 	def make_position_failed?
+		#
+	end
+
+	def change_position_failed?
 		#
 	end
 
@@ -138,7 +146,8 @@ class Connector
 end
 
 class Options
-	attr_accessor :fast_trig, :fast_trig_return
+	attr_accessor :fast_trig, :fast_trig_return,
+		:red_period, :green_period
 	# TODO
 
 	def initialize(raw_options)
@@ -155,7 +164,7 @@ class PolymorphLang
 	def initialize(proxy, raw_options)
 		@opt = Options.new(raw_options)
 		@connector = Connector.new(proxy)
-		@tick = Tick.new(@connector)
+		@tick = Tick.new(@connector, @opt.red_period, @opt.green_period)
 		@trigger = Trigger.new(@tick)
 		@calm = Calm.new(0) # todo
 	end
@@ -165,7 +174,12 @@ class PolymorphLang
 		@trigger.update
 	end
 
-	
+	def no_break_green_again?
+		#
+	end
+
+
+
 
 	def make_long_position
 		@connector.long
@@ -175,7 +189,11 @@ class PolymorphLang
 		@connector.short
 	end
 
-	def make_zero_position
+	def change_to_small_position
+		@connector.small
+	end
+
+	def change_to_zero_position
 		@connector.zero
 	end
 
@@ -293,15 +311,38 @@ class Polymorph < PolymorphLang
 					if position_closed?
 						state :wait
 					else
-						if so_fast_return? or double_ma_cross?
-							make_zero_position
+						if no_break_green_again?
+							change_to_zero_position
+							state :zero
+						else
+							if so_fast_return? or double_ma_cross?
+								change_to_small_position
+								state :small
+							end
+						end
+					end
+				end
+
+			when :small
+				if change_position_failed?
+					if position_closed?
+						state :calm
+					else
+						drop
+					end
+				else
+					if position_closed?
+						state :wait
+					else
+						if no_break_green_again?
+							change_to_zero_position
 							state :zero
 						end
 					end
 				end
 
 			when :zero
-				if make_position_failed?
+				if change_position_failed?
 					if position_closed?
 						state :calm
 					else
