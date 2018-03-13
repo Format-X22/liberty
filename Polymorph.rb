@@ -154,7 +154,8 @@ class Options
 	attr_accessor :resolution,
 		:fast_trig, :fast_trig_return,
 		:red_period, :green_period,
-		:max_no_green_break_again
+		:max_no_green_break_again,
+		:calm_period
 	# TODO
 
 	def initialize(raw_options)
@@ -166,23 +167,113 @@ class Options
 
 end
 
-class PolymorphLang
+class Polymorph
+	attr_accessor :state
 
 	def initialize(proxy, raw_options)
 		@opt = Options.new(raw_options)
 		@connector = Connector.new(proxy)
 		@tick = Tick.new(@connector, @opt.red_period, @opt.green_period)
 		@trigger = Trigger.new(@tick)
-		@calm = Calm.new(0) # todo
+		@calm = Calm.new(@opt.calm_period)
+
+		state :wait
+
+		@connector.cycle do
+			@tick.update
+			@trigger.update
+
+			iteration
+		end
 	end
 
-	def prepare_cycle
-		@tick.update
-		@trigger.update
+	def iteration
+		case state
+			when :wait
+				if trig? and not squeeze?
+					if so_fast_trig?
+						state :calm
+					else
+						state :open
+					end
+				end
+
+			when :open
+				if (trig_is_double_break? and not current_move_under_trig?) or so_fast_return?
+					state :calm
+				else
+					if trig_direction == :up
+						make_long_position
+					else
+						make_short_position
+					end
+
+					state :in
+				end
+
+			when :in
+				if make_position_failed?
+					state :calm
+				else
+					if position_closed?
+						state :wait
+					else
+						if no_break_green_again?
+							change_to_zero_position
+							state :zero
+						else
+							if so_fast_return? or double_ma_cross?
+								change_to_small_position
+								state :small
+							end
+						end
+					end
+				end
+
+			when :small
+				if change_position_failed?
+					if position_closed?
+						state :calm
+					else
+						drop
+					end
+				else
+					if position_closed?
+						state :wait
+					else
+						if no_break_green_again?
+							change_to_zero_position
+							state :zero
+						end
+					end
+				end
+
+			when :zero
+				if change_position_failed?
+					if position_closed?
+						state :calm
+					else
+						drop
+					end
+				else
+					if position_closed?
+						state :wait
+					end
+				end
+
+			when :calm
+				if current_is_break?
+					refill_calm
+				else
+					dec_calm
+
+					if calm_done?
+						refill_calm
+						state :wait
+					end
+				end
+		end
 	end
-
-
-
 
 	def make_long_position
 		@connector.long
@@ -275,104 +366,6 @@ class PolymorphLang
 
 	def no_break_green_again?
 		@tick.date - @tick.green_break > @opt.max_no_green_break_again * @opt.resolution
-	end
-
-end
-
-class Polymorph < PolymorphLang
-	attr_accessor :state
-
-	def initialize(proxy, raw_options)
-		super
-		state :wait
-	end
-
-	def cycle
-		case state
-			when :wait
-				if trig? and not squeeze?
-					if so_fast_trig?
-						state :calm
-					else
-						state :open
-					end
-				end
-
-			when :open
-				if (trig_is_double_break? and not current_move_under_trig?) or so_fast_return?
-					state :calm
-				else
-					if trig_direction == :up
-						make_long_position
-					else
-						make_short_position
-					end
-
-					state :in
-				end
-
-			when :in
-				if make_position_failed?
-					state :calm
-				else
-					if position_closed?
-						state :wait
-					else
-						if no_break_green_again?
-							change_to_zero_position
-							state :zero
-						else
-							if so_fast_return? or double_ma_cross?
-								change_to_small_position
-								state :small
-							end
-						end
-					end
-				end
-
-			when :small
-				if change_position_failed?
-					if position_closed?
-						state :calm
-					else
-						drop
-					end
-				else
-					if position_closed?
-						state :wait
-					else
-						if no_break_green_again?
-							change_to_zero_position
-							state :zero
-						end
-					end
-				end
-
-			when :zero
-				if change_position_failed?
-					if position_closed?
-						state :calm
-					else
-						drop
-					end
-				else
-					if position_closed?
-						state :wait
-					end
-				end
-
-			when :calm
-				if current_is_break?
-					refill_calm
-				else
-					dec_calm
-
-					if calm_done?
-						refill_calm
-						state :wait
-					end
-				end
-		end
 	end
 
 end
