@@ -1,3 +1,65 @@
+class Trigger
+
+	attr_reader :tick, :prepare_tick, :direction
+
+	def initialize(tick_obj)
+		@tick_obj = tick_obj
+	end
+
+	def update
+		#
+	end
+
+end
+
+class ConnectorInterface
+
+	def long(take)
+		# abstract
+	end
+
+	def short(take)
+		# abstract
+	end
+
+	def move_take(take)
+		# abstract
+	end
+
+	def make_position_failed?
+		# abstract
+	end
+
+	def change_position_failed?
+		# abstract
+	end
+
+	def position_closed?
+		# abstract
+	end
+
+	def tick
+		# abstract
+	end
+
+	def position?
+		# abstract
+	end
+
+	def position_tick_date
+		# abstract
+	end
+
+	def position_tick_close
+		# abstract
+	end
+
+	def cycle(&iteration)
+		# abstract
+	end
+
+end
+
 class Calm
 
 	def initialize(max)
@@ -19,25 +81,11 @@ class Calm
 
 end
 
-class Trigger
-
-	attr_reader :tick, :prepare_tick, :direction
-
-	def initialize(tick_obj)
-		@tick_obj = tick_obj
-	end
-
-	def update
-		#
-	end
-
-end
-
 # TODO Check ma calc
 class Tick
 	attr_reader :date,
 		:open, :high, :low, :close,
-		:red, :green,
+		:red, :green, :last_green,
 		:green_break,
 		:ma_cross, :prev_ma_cross
 
@@ -52,7 +100,7 @@ class Tick
 
 	def update(data = nil)
 		unless data
-			data = @connector.raw_tick
+			data = @connector.tick
 			@history << data
 		end
 
@@ -71,6 +119,10 @@ class Tick
 		if high > green and low < green
 			@green_break = @date
 		end
+
+		@last_green = @green
+		@green = green
+		@red = red
 	end
 
 	def break?
@@ -109,53 +161,13 @@ class Tick
 
 end
 
-class Connector
-	attr_reader :position, :position_tick
-
-	def initialize(proxy)
-		#
-	end
-
-	def long
-		#
-	end
-
-	def short
-		#
-	end
-
-	def small
-		#
-	end
-
-	def zero
-		#
-	end
-
-	def make_position_failed?
-		#
-	end
-
-	def change_position_failed?
-		#
-	end
-
-	def position_closed?
-		#
-	end
-
-	def raw_tick
-		#
-	end
-
-end
-
 class Options
 	attr_accessor :resolution,
 		:fast_trig, :fast_trig_return,
 		:red_period, :green_period,
 		:max_no_green_break_again,
-		:calm_period
+		:calm_period,
+		:take, :small_take, :position_ma_mul
 	# TODO
 
 	def initialize(raw_options)
@@ -170,9 +182,9 @@ end
 class Polymorph
 	attr_accessor :state
 
-	def initialize(proxy, raw_options)
+	def initialize(connector, raw_options)
 		@opt = Options.new(raw_options)
-		@connector = Connector.new(proxy)
+		@connector = connector
 		@tick = Tick.new(@connector, @opt.red_period, @opt.green_period)
 		@trigger = Trigger.new(@tick)
 		@calm = Calm.new(@opt.calm_period)
@@ -276,24 +288,38 @@ class Polymorph
 	end
 
 	def make_long_position
-		@connector.long
+		close = @connector.position_tick_close
+		mul = 1 + @opt.take
+
+		@connector.long(close * mul)
 	end
 
 	def make_short_position
-		@connector.short
+		close = @connector.position_tick_close
+		mul = 1 - @opt.take
+
+		@connector.short(close * mul)
 	end
 
 	def change_to_small_position
-		@connector.small
+		if state == :long
+			mul = 1 + @opt.small_take
+		else
+			mul = 1 - @opt.small_take
+		end
+
+		take = @connector.position_tick_close * mul
+
+		@connector.move_take(take)
 	end
 
 	def change_to_zero_position
-		@connector.zero
+		@connector.move_take(@connector.position_tick_close)
 	end
 
 	def double_ma_cross?
 		if @tick.prev_ma_cross
-			@connector.position_tick.date < @tick.prev_ma_cross
+			@connector.position_tick_date < @tick.prev_ma_cross
 		else
 			false
 		end
@@ -309,7 +335,7 @@ class Polymorph
 	end
 
 	def in_position?
-		!!@connector.position
+		@connector.position?
 	end
 
 	def trig_direction
