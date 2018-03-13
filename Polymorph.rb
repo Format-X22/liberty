@@ -35,7 +35,7 @@ end
 
 class Tick
 	attr_reader :index,
-		:open, :close, :high, :low,
+		:open, :high, :low, :close,
 		:red, :green,
 		:ma_cross, :prev_ma_cross
 
@@ -44,7 +44,7 @@ class Tick
 	end
 
 	def update
-		_, @open, @close, @high, @low = @connector.raw_tick
+		_, @open, @high, @low, @close = @connector.raw_tick
 		@index = @connector.raw_tick_index
 
 		# TODO MA

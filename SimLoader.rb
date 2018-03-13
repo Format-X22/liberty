@@ -53,9 +53,9 @@ class SimLoader
 			@result_hash[date] = [
 				date,
 				data['o'][index],
-				data['c'][index],
 				data['h'][index],
-				data['l'][index]
+				data['l'][index],
+				data['c'][index]
 			]
 		end
 	end
