@@ -38,6 +38,7 @@ class Tick
 	attr_reader :date,
 		:open, :high, :low, :close,
 		:red, :green,
+		:green_break,
 		:ma_cross, :prev_ma_cross
 
 	def initialize(connector, red_period, green_period)
@@ -65,6 +66,10 @@ class Tick
 		if (red >= green and @red <= @green) or (red < green and @red > @green)
 			@prev_ma_cross = @ma_cross
 			@ma_cross = @date
+		end
+
+		if high > green and low < green
+			@green_break = @date
 		end
 	end
 
@@ -146,8 +151,10 @@ class Connector
 end
 
 class Options
-	attr_accessor :fast_trig, :fast_trig_return,
-		:red_period, :green_period
+	attr_accessor :resolution,
+		:fast_trig, :fast_trig_return,
+		:red_period, :green_period,
+		:max_no_green_break_again
 	# TODO
 
 	def initialize(raw_options)
@@ -172,10 +179,6 @@ class PolymorphLang
 	def prepare_cycle
 		@tick.update
 		@trigger.update
-	end
-
-	def no_break_green_again?
-		#
 	end
 
 
@@ -268,6 +271,10 @@ class PolymorphLang
 		else
 			@tick.high < @tick.red and @tick.low  < @tick.green
 		end
+	end
+
+	def no_break_green_again?
+		@tick.date - @tick.green_break > @opt.max_no_green_break_again * @opt.resolution
 	end
 
 end
