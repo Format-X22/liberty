@@ -26,6 +26,10 @@ class ConnectorInterface
 		# abstract
 	end
 
+	def drop
+		# abstract
+	end
+
 	def make_position_failed?
 		# abstract
 	end
@@ -81,7 +85,6 @@ class Calm
 
 end
 
-# TODO Check ma calc
 class Tick
 	attr_reader :date,
 		:open, :high, :low, :close,
@@ -291,14 +294,18 @@ class Polymorph
 		close = @connector.position_tick_close
 		mul = 1 + @opt.take
 
-		@connector.long(close * mul)
+		bonus = ((close / @tick.green) - 1) * @opt.position_ma_mul
+
+		@connector.long((close * mul) * (1 + bonus))
 	end
 
 	def make_short_position
 		close = @connector.position_tick_close
 		mul = 1 - @opt.take
 
-		@connector.short(close * mul)
+		bonus = ((@tick.green / close) - 1) * @opt.position_ma_mul
+
+		@connector.short((close * mul) * (1 + bonus))
 	end
 
 	def change_to_small_position
@@ -392,6 +399,10 @@ class Polymorph
 
 	def no_break_green_again?
 		@tick.date - @tick.green_break > @opt.max_no_green_break_again * @opt.resolution
+	end
+
+	def drop
+		@connector.drop
 	end
 
 end
