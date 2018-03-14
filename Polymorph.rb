@@ -1,9 +1,9 @@
 class Trigger
+	attr_reader :candle, :prepare_candle, :direction
 
-	attr_reader :tick, :prepare_tick, :direction
-
-	def initialize(tick_obj)
-		@tick_obj = tick_obj
+	def initialize(tick, prepare_sigma)
+		@tick = tick
+		@prepare_sigma = prepare_sigma
 	end
 
 	def update
@@ -85,11 +85,17 @@ class Calm
 
 end
 
-class Tick
-	attr_reader :date,
-		:open, :high, :low, :close,
-		:red, :green, :last_green,
-		:green_break,
+class Candle
+	attr_reader :date, :open, :high, :low, :close
+
+	def initialize(raw)
+		@date, @open, @high, @low, @close = raw
+	end
+end
+
+class Tick < Candle
+	attr_reader :red, :green,
+		:last_green, :green_break,
 		:ma_cross, :prev_ma_cross
 
 	def initialize(connector, red_period, green_period)
@@ -170,7 +176,8 @@ class Options
 		:red_period, :green_period,
 		:max_no_green_break_again,
 		:calm_period,
-		:take, :small_take, :position_ma_mul
+		:take, :small_take, :position_ma_mul,
+		:prepare_sigma
 	# TODO
 
 	def initialize(raw_options)
@@ -189,7 +196,7 @@ class Polymorph
 		@opt = Options.new(raw_options)
 		@connector = connector
 		@tick = Tick.new(@connector, @opt.red_period, @opt.green_period)
-		@trigger = Trigger.new(@tick)
+		@trigger = Trigger.new(@tick, @opt.prepare_sigma)
 		@calm = Calm.new(@opt.calm_period)
 
 		state :wait
@@ -333,8 +340,8 @@ class Polymorph
 	end
 
 	def so_fast_return?
-		@trigger.prepare_tick.date > @trigger.tick.date and
-		@trigger.prepare_tick.date - @trigger.tick.date <= (@opt.fast_trig_return + 1) * @opt.resolution
+		@trigger.prepare_candle.date > @trigger.candle.date and
+		@trigger.prepare_candle.date - @trigger.candle.date <= (@opt.fast_trig_return + 1) * @opt.resolution
 	end
 
 	def current_is_break?
@@ -370,11 +377,11 @@ class Polymorph
 	end
 
 	def trig?
-		@trigger.tick.date == @tick.date
+		@trigger.candle.date == @tick.date
 	end
 
 	def so_fast_trig?
-		@trigger.tick.date - @trigger.prepare_tick.date <= (@opt.fast_trig + 1) * @opt.resolution
+		@trigger.candle.date - @trigger.prepare_candle.date <= (@opt.fast_trig + 1) * @opt.resolution
 	end
 
 	def squeeze?
@@ -383,7 +390,7 @@ class Polymorph
 	end
 
 	def trig_is_double_break?
-		tick = @trigger.tick
+		tick = @trigger.candle
 
 		(tick.green > tick.red and tick.high > tick.green and tick.low < tick.red  ) or
 		(tick.green < tick.red and tick.high > tick.red   and tick.low < tick.green)
