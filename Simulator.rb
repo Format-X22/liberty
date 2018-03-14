@@ -30,14 +30,6 @@ class Simulator < ConnectorInterface
 		#
 	end
 
-	def make_position_failed?
-		#
-	end
-
-	def change_position_failed?
-		#
-	end
-
 	def position_closed?
 		#
 	end

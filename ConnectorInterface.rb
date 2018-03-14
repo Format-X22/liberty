@@ -30,14 +30,6 @@ class ConnectorInterface
 		# abstract
 	end
 
-	def make_position_failed?
-		# abstract
-	end
-
-	def change_position_failed?
-		# abstract
-	end
-
 	def position_closed?
 		# abstract
 	end
