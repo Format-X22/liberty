@@ -1,4 +1,10 @@
+require_relative 'Log'
+
 class ConnectorInterface
+
+	def initialize(opt)
+		# abstract
+	end
 
 	def long(take)
 		# abstract
@@ -13,6 +19,14 @@ class ConnectorInterface
 	end
 
 	def drop
+		# abstract
+	end
+
+	def candle
+		# abstract
+	end
+
+	def history
 		# abstract
 	end
 

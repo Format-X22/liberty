@@ -1,9 +1,15 @@
 require_relative 'Options'
-# todo require connector
 require_relative 'Polymorph'
+require_relative 'Config'
 
-# TODO Check ma calc
+OPTIONS = Options.new(Config.options)
 
-Polymorph.new({}, Options.new(
-	a: nil # TODO
-))
+if Config.prod?
+	require_relative 'Bitmex'
+	PROXY = Bitmex.new(OPTIONS)
+else
+	require_relative 'Simulator'
+	PROXY = Simulator.new(OPTIONS)
+end
+
+Polymorph.new(PROXY, OPTIONS)

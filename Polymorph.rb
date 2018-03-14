@@ -22,6 +22,8 @@ class Polymorph
 		end
 	end
 
+	private
+
 	def iteration
 		case state
 			when :wait
