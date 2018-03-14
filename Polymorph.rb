@@ -49,53 +49,33 @@ class Polymorph
 				end
 
 			when :in
-				if make_position_failed?
-					state :calm
+				if position_closed?
+					state :wait
 				else
-					if position_closed?
-						state :wait
+					if no_break_green_again?
+						change_to_zero_position
+						state :zero
 					else
-						if no_break_green_again?
-							change_to_zero_position
-							state :zero
-						else
-							if so_fast_return? or double_ma_cross?
-								change_to_small_position
-								state :small
-							end
+						if so_fast_return? or double_ma_cross?
+							change_to_small_position
+							state :small
 						end
 					end
 				end
 
 			when :small
-				if change_position_failed?
-					if position_closed?
-						state :calm
-					else
-						drop
-					end
+				if position_closed?
+					state :wait
 				else
-					if position_closed?
-						state :wait
-					else
-						if no_break_green_again?
-							change_to_zero_position
-							state :zero
-						end
+					if no_break_green_again?
+						change_to_zero_position
+						state :zero
 					end
 				end
 
 			when :zero
-				if change_position_failed?
-					if position_closed?
-						state :calm
-					else
-						drop
-					end
-				else
-					if position_closed?
-						state :wait
-					end
+				if position_closed?
+					state :wait
 				end
 
 			when :calm
