@@ -20,6 +20,7 @@ GEM
     minitest (5.11.3)
     moving_average (0.1.1)
     netrc (0.11.0)
+    openssl (2.1.0)
     require_all (1.5.0)
     rest-client (2.0.2)
       http-cookie (>= 1.0.2, < 2.0)
@@ -39,6 +40,7 @@ DEPENDENCIES
   activesupport
   colorize
   moving_average
+  openssl
   require_all
   rest-client
 
