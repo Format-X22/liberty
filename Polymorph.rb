@@ -79,6 +79,8 @@ class Polymorph
 				end
 
 			when :calm
+				reset_trig
+
 				if current_is_break?
 					refill_calm
 				else
@@ -203,8 +205,8 @@ class Polymorph
 		@tick.date - @tick.green_break > @opt.max_no_green_break_again * @opt.resolution
 	end
 
-	def drop
-		@connector.drop
+	def reset_trig
+		@trigger.reset
 	end
 
 end
