@@ -49,9 +49,7 @@ class Polymorph
 				end
 
 			when :in
-				if position_closed?
-					state :wait
-				else
+				if position?
 					if no_break_green_again?
 						change_to_zero_position
 						state :zero
@@ -61,20 +59,22 @@ class Polymorph
 							state :small
 						end
 					end
+				else
+					state :wait
 				end
 
 			when :small
-				if position_closed?
-					state :wait
-				else
+				if position?
 					if no_break_green_again?
 						change_to_zero_position
 						state :zero
 					end
+				else
+					state :wait
 				end
 
 			when :zero
-				if position_closed?
+				unless position?
 					state :wait
 				end
 
@@ -95,7 +95,7 @@ class Polymorph
 	end
 
 	def make_long_position
-		close = @connector.position_tick_close
+		close = @tick.close
 		mul = 1 + @opt.take
 
 		bonus = ((close / @tick.green) - 1) * @opt.position_ma_mul
@@ -104,7 +104,7 @@ class Polymorph
 	end
 
 	def make_short_position
-		close = @connector.position_tick_close
+		close = @tick.close
 		mul = 1 - @opt.take
 
 		bonus = ((@tick.green / close) - 1) * @opt.position_ma_mul
@@ -119,18 +119,18 @@ class Polymorph
 			mul = 1 - @opt.small_take
 		end
 
-		take = @connector.position_tick_close * mul
+		take = @connector.position.candle.close * mul
 
 		@connector.move_take(take)
 	end
 
 	def change_to_zero_position
-		@connector.move_take(@connector.position_tick_close)
+		@connector.move_take(@connector.position.candle.close)
 	end
 
 	def double_ma_cross?
 		if @tick.prev_ma_cross
-			@connector.position_tick_date < @tick.prev_ma_cross
+			@connector.position.candle.date < @tick.prev_ma_cross
 		else
 			false
 		end
@@ -167,10 +167,6 @@ class Polymorph
 
 	def make_position_failed?
 		@connector.make_position_failed?
-	end
-
-	def position_closed?
-		@connector.position_closed?
 	end
 
 	def trig?

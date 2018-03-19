@@ -26,19 +26,7 @@ class ConnectorInterface
 		# abstract
 	end
 
-	def position_closed?
-		# abstract
-	end
-
 	def position?
-		# abstract
-	end
-
-	def position_tick_date
-		# abstract
-	end
-
-	def position_tick_close
 		# abstract
 	end
 

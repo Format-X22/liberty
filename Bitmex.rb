@@ -30,19 +30,7 @@ class Bitmex < ConnectorInterface
 		#
 	end
 
-	def position_closed?
-		#
-	end
-
 	def position?
-		#
-	end
-
-	def position_tick_date
-		#
-	end
-
-	def position_tick_close
 		#
 	end
 
