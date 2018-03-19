@@ -9,22 +9,24 @@ class Simulator < ConnectorInterface
 		@data = Marshal.restore File.read 'sim.txt'
 		@history = []
 		@position = Position.new
+
+		# TODO logger
 	end
 
 	def long(take)
-		@position.open(@candle)
-
-		# TODO make close trigger
+		fail = @candle.close * (1 - @opt.fail)
+		
+		@position.open(@candle, take, fail)
 	end
 
 	def short(take)
-		@position.open(@candle)
+		fail = @candle.close * (1 + @opt.fail)
 
-		# TODO make close trigger
+		@position.open(@candle, take, fail)
 	end
 
 	def move_take(take)
-		# TODO modify close trigger
+		@position.exit_price = take
 	end
 
 	def candle
@@ -44,6 +46,18 @@ class Simulator < ConnectorInterface
 			@candle = Candle.new(raw)
 
 			@history << @candle
+
+			if position?
+				if @position.type == :long
+					if @candle.high > @position.exit_price
+						# TODO buy logic
+					end
+				else
+					if @candle.low < @position.exit_price
+						# TODO sell logic
+					end
+				end
+			end
 
 			iteration.call
 		end

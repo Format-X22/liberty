@@ -4,9 +4,8 @@ class Options
 		:red_period, :green_period,
 		:max_no_green_break_again,
 		:calm_period,
-		:take, :small_take, :position_ma_mul,
+		:take, :small_take, :position_ma_mul, :fail,
 		:prepare_sigma
-	# TODO
 
 	def initialize(raw_options)
 		raw_options.each do |key, value|
