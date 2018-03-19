@@ -22,10 +22,6 @@ class Bitmex < ConnectorInterface
 		#
 	end
 
-	def drop
-		#
-	end
-
 	def candle
 		#
 	end

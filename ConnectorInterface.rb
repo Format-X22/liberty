@@ -18,10 +18,6 @@ class ConnectorInterface
 		# abstract
 	end
 
-	def drop
-		# abstract
-	end
-
 	def candle
 		# abstract
 	end

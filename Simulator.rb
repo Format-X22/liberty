@@ -18,10 +18,6 @@ class Simulator < ConnectorInterface
 		#
 	end
 
-	def drop
-		#
-	end
-
 	def candle
 		#
 	end
