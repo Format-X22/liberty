@@ -1,4 +1,5 @@
 # TODO Check ma calc
+# TODO Check profit/fail calc
 
 class Config
 

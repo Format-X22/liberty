@@ -10,28 +10,28 @@ class Log
 		log 'Start', :bold
 	end
 
-	def buy
-		log 'Buy'
+	def long
+		log 'Long'
 	end
 
-	def buy_profit
-		log 'Close buy', :blue
+	def long_profit
+		log 'Close long', :blue
 	end
 
-	def buy_fail
-		log 'Close buy', :yellow
+	def long_fail
+		log 'Close long', :yellow
 	end
 
-	def sell
-		log 'Sell'
+	def short
+		log 'Short'
 	end
 
-	def sell_profit
-		log 'Close sell', :blue
+	def short_profit
+		log 'Close short', :blue
 	end
 
-	def sell_fail
-		log 'Close sell', :yellow
+	def short_fail
+		log 'Close short', :yellow
 	end
 
 	def error(prefix, value)
