@@ -10,6 +10,8 @@ class Candle
 	end
 
 	def update(raw)
+		raise 'Invalid raw candle' if raw.size != 5
+
 		@date, @open, @high, @low, @close = raw
 	end
 

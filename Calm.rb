@@ -11,6 +11,8 @@ class Calm
 
 	def dec
 		@val -= 1
+
+		raise 'Negative calm' if @val < 0
 	end
 
 	def done?

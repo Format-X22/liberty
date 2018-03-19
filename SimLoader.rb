@@ -75,4 +75,4 @@ class SimLoader
 
 end
 
-SimLoader.new.load(30.month.ago, 5)
+SimLoader.new.load(1.month.ago, 5)

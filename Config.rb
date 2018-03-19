@@ -18,6 +18,7 @@ class Config
 			calm_period: 12,
 			take: 0.01,
 			fail: 0.1,
+			mul: 10,
 			small_take: 0.002,
 			position_ma_mul: 2,
 			prepare_sigma: 0.001

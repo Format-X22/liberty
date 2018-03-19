@@ -3,7 +3,6 @@ require_relative 'Trigger'
 require_relative 'Calm'
 
 class Polymorph
-	attr_accessor :state
 
 	def initialize(connector, options)
 		@opt = options
@@ -14,12 +13,14 @@ class Polymorph
 
 		state :wait
 
-		@connector.cycle do
-			@tick.update
-			@trigger.update
+		# TODO
 
-			iteration
-		end
+		#@connector.cycle do
+		#	@tick.update
+		#	@trigger.update
+
+		#	iteration
+		#end
 	end
 
 	private
@@ -91,6 +92,14 @@ class Polymorph
 						state :wait
 					end
 				end
+		end
+	end
+
+	def state(val = nil)
+		if val
+			@state = val
+		else
+			@state
 		end
 	end
 
