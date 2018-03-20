@@ -8,19 +8,17 @@ class Polymorph
 		@opt = options
 		@connector = connector
 		@tick = Tick.new(@connector, @opt.red_period, @opt.green_period)
-		#@trigger = Trigger.new(@tick, @opt.prepare_sigma)
-		#@calm = Calm.new(@opt.calm_period)
+		@trigger = Trigger.new(@tick, @opt.prepare_sigma)
+		@calm = Calm.new(@opt.calm_period)
 
 		state :wait
 
-		# TODO
+		@connector.cycle do
+			@tick.update
+			@trigger.update
 
-		#@connector.cycle do
-		#	@tick.update
-		#	@trigger.update
-
-		#	iteration
-		#end
+			iteration
+		end
 	end
 
 	private
