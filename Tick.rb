@@ -12,19 +12,22 @@ class Tick < Candle
 		@red_period = red_period
 		@green_period = green_period
 
-		update_by_history
+		update(@history.last)
 	end
 
-	def update(data = nil)
-		unless data
-			data = @connector.candle
+	def update(candle = nil)
+		unless candle
+			candle = @connector.candle
 			@history << data
 		end
 
-		@date, @open, @high, @low, @close = data
+		@date, @open, @high, @low, @close = candle.raw
 
-		last = @history.length
+		last = @history.length - 1
 		red, green = ma(last)
+
+		@red ||= red
+		@green ||= green
 
 		if (red >= green and @red <= @green) or (red < green and @red > @green)
 			@prev_ma_cross = @ma_cross
@@ -47,34 +50,9 @@ class Tick < Candle
 
 	private
 
-	def update_by_history
-		last_date = nil
-		last_red = nil
-		last_green = nil
-
-		@history[0...-1].each.with_index do |candle, index|
-			next if index < @red_period
-
-			if index == @red_period
-				last_date = candle.date
-				last_red = @history.sma(index, @red_period)
-				last_green = @history.sma(index, @green_period)
-				next
-			end
-
-			red, green = ma(index)
-
-			if (red >= green and last_red <= last_green) or (red < green and last_red > last_green)
-				@prev_ma_cross = @ma_cross
-				@ma_cross = last_date
-			end
-		end
-
-		update(@history.last)
-	end
-
 	def ma(index)
-		close = @history.last(@red_period).map{|v| v.close}
+		close = @history.last(@red_period + 1).map{|v| v.close}
+		
 		red = close.sma(index, @red_period)
 		green = close.sma(index, @green_period)
 

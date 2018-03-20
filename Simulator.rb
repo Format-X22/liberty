@@ -16,6 +16,8 @@ class Simulator < ConnectorInterface
 
 		@time = TimeControl.new(true)
 		@logger = Log.new(@time)
+
+		populate_history
 	end
 
 	def long(take)
@@ -51,26 +53,38 @@ class Simulator < ConnectorInterface
 	end
 
 	def cycle(&iteration)
-		last = @data.length - 1
+		start = @opt.red_period + 1
 
-		@data.each.with_index do |raw, index|
-			@candle = Candle.new(raw)
-			@history << @candle
-
-			@time.direct_time = Time.at @candle.date
-
-			handle_position if position?
-
-			iteration.call
-
-			if index == last
-				@logger.empty
-				@logger.result('cum', @deposit)
-			end
+		@data[start..-1].each.with_index do |raw_candle, index|
+			handle_iteration(iteration, raw_candle, index)
 		end
 	end
 
 	private
+
+	def populate_history
+		fake_iteration = -> {}
+
+		@data[0..@opt.red_period].each.with_index do |raw, index|
+			handle_iteration(fake_iteration, raw, index)
+		end
+	end
+
+	def handle_iteration(iteration, raw_candle, index)
+		@candle = Candle.new(raw_candle)
+		@history << @candle
+
+		@time.direct_time = Time.at @candle.date
+
+		handle_position if position?
+
+		iteration.call
+
+		if index == @data.length - 1
+			@logger.empty
+			@logger.result('cum', @deposit)
+		end
+	end
 
 	def handle_position
 		exit_price = @position.exit_price

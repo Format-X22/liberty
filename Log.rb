@@ -61,7 +61,7 @@ class Log
 			puts value
 		end
 
-		File.write('Storage/log.txt', "#{value}\n", mode: 'a')
+		File.write('log.txt', "#{value}\n", mode: 'a')
 	end
 
 end
