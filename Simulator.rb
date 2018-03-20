@@ -80,7 +80,7 @@ class Simulator < ConnectorInterface
 
 		iteration.call
 
-		if index == @data.length - 1
+		if index + @opt.red_period + 1 == @data.length - 1
 			@logger.empty
 			@logger.result('cum', @deposit)
 		end

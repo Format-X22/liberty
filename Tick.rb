@@ -18,13 +18,13 @@ class Tick < Candle
 	def update(candle = nil)
 		unless candle
 			candle = @connector.candle
-			@history << data
+			@history << candle
 		end
 
 		@date, @open, @high, @low, @close = candle.raw
 
 		last = @history.length - 1
-		red, green = ma(last)
+		red, green = ma
 
 		@red ||= red
 		@green ||= green
@@ -50,11 +50,10 @@ class Tick < Candle
 
 	private
 
-	def ma(index)
+	def ma
 		close = @history.last(@red_period + 1).map{|v| v.close}
-		
-		red = close.sma(index, @red_period)
-		green = close.sma(index, @green_period)
+		red = close.sma(close.size - 1, @red_period)
+		green = close.sma(close.size - 1, @green_period)
 
 		[red, green]
 	end
