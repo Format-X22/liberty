@@ -34,6 +34,14 @@ class Log
 		log 'Close short', :yellow
 	end
 
+	def small_position
+		log 'Reduce to small', :cyan
+	end
+
+	def zero_position
+		log 'Reduce to zero', :magenta
+	end
+
 	def error(prefix, value)
 		log "ERROR #{prefix} -> #{value}", :red
 	end

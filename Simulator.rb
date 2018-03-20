@@ -35,6 +35,12 @@ class Simulator < ConnectorInterface
 	end
 
 	def move_take(take)
+		if take == @position.candle.close
+			@logger.zero_position
+		else
+			@logger.small_position
+		end
+
 		@position.exit_price = take
 	end
 
