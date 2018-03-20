@@ -4,13 +4,15 @@ require_relative 'Candle'
 class Tick < Candle
 	attr_reader :red, :green,
 		:last_green, :green_break,
-		:ma_cross, :prev_ma_cross
+		:ma_cross, :prev_ma_cross,
+		:ma_registry
 
 	def initialize(connector, red_period, green_period)
 		@connector = connector
 		@history = connector.history.dup
 		@red_period = red_period
 		@green_period = green_period
+		@ma_registry = {}
 
 		update(@history.last)
 	end
@@ -23,8 +25,8 @@ class Tick < Candle
 
 		@date, @open, @high, @low, @close = candle.raw
 
-		last = @history.length - 1
 		red, green = ma
+		@ma_registry[@date] = [red, green]
 
 		@red ||= red
 		@green ||= green

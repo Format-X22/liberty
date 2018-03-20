@@ -131,6 +131,8 @@ class Simulator < ConnectorInterface
 		basic_profit = (1 / open_price - 1 / close_price)
 
 		@deposit += amount * basic_profit
+
+		@position.close
 	end
 
 end

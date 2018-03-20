@@ -152,7 +152,7 @@ class Polymorph
 		@tick.break?
 	end
 
-	def in_position?
+	def position?
 		@connector.position?
 	end
 
@@ -191,9 +191,10 @@ class Polymorph
 
 	def trig_is_double_break?
 		tick = @trigger.candle
+		red, green = @tick.ma_registry[tick.date]
 
-		(tick.green > tick.red and tick.high > tick.green and tick.low < tick.red  ) or
-		(tick.green < tick.red and tick.high > tick.red   and tick.low < tick.green)
+		(green > red and tick.high > green and tick.low < red  ) or
+		(green < red and tick.high > red   and tick.low < green)
 	end
 
 	def current_move_under_trig?

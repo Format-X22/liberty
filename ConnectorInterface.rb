@@ -1,6 +1,7 @@
 require_relative 'Log'
 
 class ConnectorInterface
+	attr_reader :position
 
 	def initialize(opt)
 		# abstract

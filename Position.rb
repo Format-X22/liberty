@@ -6,7 +6,7 @@ class Position
 	end
 
 	def open(candle, exit_price, fail_price)
-		raise 'Open opened position' if closed?
+		raise 'Open opened position' unless closed?
 
 		@closed = false
 		@candle = candle

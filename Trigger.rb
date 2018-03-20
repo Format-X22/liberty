@@ -11,20 +11,18 @@ class Trigger
 	end
 
 	def update
-		if @tick.ma_cross == @tick.date
-			green = @tick.green
-			red = @tick.red
-			high = @tick.high
-			low = @tick.low
-			
-			if (green >= red and high >= green) or (green < red and low <= green)
-				reset
-			else
-				update_prepare_candle
+		green = @tick.green
+		red = @tick.red
+		high = @tick.high
+		low = @tick.low
 
-				if @prepare_candle.date != 0
-					update_candle
-				end
+		if (@tick.ma_cross == @tick.date) and ((green >= red and high >= green) or (green < red and low <= green))
+			reset
+		else
+			update_prepare_candle
+
+			if @prepare_candle.date != 0
+				update_candle
 			end
 		end
 	end
