@@ -3,7 +3,7 @@ require_relative 'Candle'
 
 class Tick < Candle
 	attr_reader :red, :green,
-		:last_green, :green_break,
+		:last_green, :green_break, :prev_green_break,
 		:ma_cross, :prev_ma_cross,
 		:ma_registry
 
@@ -37,6 +37,7 @@ class Tick < Candle
 		end
 
 		if high > green and low < green
+			@prev_green_break = @green_break
 			@green_break = @date
 		end
 

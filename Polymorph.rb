@@ -35,6 +35,7 @@ class Polymorph
 				end
 
 			when :open
+				# TODO
 				if (trig_is_double_break? and not current_move_under_trig?) or so_fast_return?
 					state :calm
 				else
@@ -107,9 +108,10 @@ class Polymorph
 
 		bonus = ((close / @tick.green) - 1) * @opt.position_ma_mul
 
-		@connector.long((close * mul) * (1 + bonus))
+		@connector.long((close * mul) * (1 - bonus))
 	end
 
+	# TODO
 	def make_short_position
 		close = @tick.close
 		mul = 1 - @opt.take
@@ -145,7 +147,7 @@ class Polymorph
 
 	def so_fast_return?
 		@trigger.prepare_candle.date > @trigger.candle.date and
-		@trigger.prepare_candle.date - @trigger.candle.date <= (@opt.fast_trig_return + 1) * @opt.resolution
+		@trigger.prepare_candle.date - @trigger.candle.date <= (@opt.fast_trig_return + 1) * @opt.resolution * 60
 	end
 
 	def current_is_break?
@@ -181,7 +183,11 @@ class Polymorph
 	end
 
 	def so_fast_trig?
-		@trigger.candle.date - @trigger.prepare_candle.date <= (@opt.fast_trig + 1) * @opt.resolution
+		if @tick.prev_green_break
+			@trigger.candle.date - @tick.prev_green_break <= (@opt.fast_trig + 1) * @opt.resolution * 60
+		else
+			true
+		end
 	end
 
 	def squeeze?
@@ -205,8 +211,10 @@ class Polymorph
 		end
 	end
 
+	# TODO Move to trigger as state
 	def no_break_green_again?
-		@tick.date - @tick.green_break > @opt.max_no_green_break_again * @opt.resolution
+		#@tick.date - @tick.green_break > @opt.max_no_green_break_again * @opt.resolution * 60
+		false
 	end
 
 	def reset_trig
