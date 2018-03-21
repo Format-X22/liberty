@@ -21,7 +21,7 @@ class Config
 			mul: 10,
 			small_take: 0.002,
 			position_ma_mul: 2,
-			prepare_sigma: 0.001
+			prepare_sigma: 0.0005
 		}
 	end
 end

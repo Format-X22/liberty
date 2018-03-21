@@ -36,8 +36,14 @@ class Trigger
 	private
 
 	def update_prepare_candle
-		high = @tick.high * (1 + @prepare_sigma)
-		low = @tick.low * (1 - @prepare_sigma)
+		high = @tick.high
+		low = @tick.low
+
+		if @tick.green > @tick.red
+			low = low * (1 - @prepare_sigma)
+		else
+			high = high * (1 + @prepare_sigma)
+		end
 
 		if high > @tick.red and low <= @tick.red
 			@prepare_candle.update(@tick.raw)
