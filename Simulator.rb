@@ -133,10 +133,11 @@ class Simulator < ConnectorInterface
 
 	def close_position(close_price, direction_mul)
 		open_price = @position.candle.close
-		amount = direction_mul * @deposit * @opt.mul
+		amount = direction_mul * @opt.mul
 		basic_profit = (1 / open_price - 1 / close_price)
+		percent = 100 + (basic_profit * open_price * 100)
 
-		@deposit += amount * basic_profit
+		@deposit *= 1 + ((amount * percent) / 100)
 
 		@position.close
 	end
