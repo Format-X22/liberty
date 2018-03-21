@@ -1,7 +1,7 @@
 require_relative 'Candle'
 
 class Trigger
-	attr_reader :direction, :candle, :prepare_candle
+	attr_reader :direction, :candle, :prepare_candle, :next_green_date
 
 	def initialize(tick, prepare_sigma)
 		@tick = tick
@@ -54,7 +54,16 @@ class Trigger
 	def update_candle
 		if @tick.high > @tick.green and @tick.low <= @tick.green and @candle.date <= @prepare_candle.date
 			@candle.update(@tick.raw)
+			@next_green_date = 0
 			update_direction
+		else
+			catch_next_green
+		end
+	end
+
+	def catch_next_green
+		if @next_green_date == 0 and @tick.break_green?
+			@next_green_date = @tick.date
 		end
 	end
 

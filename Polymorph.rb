@@ -70,12 +70,12 @@ class Polymorph
 						state :zero
 					end
 				else
-					state :wait
+					state :calm
 				end
 
 			when :zero
 				unless position?
-					state :wait
+					state :calm
 				end
 
 			when :calm
@@ -108,17 +108,16 @@ class Polymorph
 
 		bonus = ((close / @tick.green) - 1) * @opt.position_ma_mul
 
-		@connector.long((close * mul) * (1 - bonus))
+		@connector.long(close * (mul - bonus))
 	end
 
-	# TODO
 	def make_short_position
 		close = @tick.close
 		mul = 1 - @opt.take
 
 		bonus = ((@tick.green / close) - 1) * @opt.position_ma_mul
 
-		@connector.short((close * mul) * (1 + bonus))
+		@connector.short(close * (mul + bonus))
 	end
 
 	def change_to_small_position
@@ -211,10 +210,12 @@ class Polymorph
 		end
 	end
 
-	# TODO Move to trigger as state
 	def no_break_green_again?
-		#@tick.date - @tick.green_break > @opt.max_no_green_break_again * @opt.resolution * 60
-		false
+		empty_green_date = @trigger.next_green_date == 0
+		padding = @tick.date - @trigger.candle.date
+		max_padding = @opt.max_no_green_break_again * @opt.resolution * 60
+
+		empty_green_date and padding > max_padding
 	end
 
 	def reset_trig

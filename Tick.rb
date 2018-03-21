@@ -47,8 +47,15 @@ class Tick < Candle
 	end
 
 	def break?
-		(high > green and low < green) or
-		(high > red   and low < red  )
+		break_green? or break_red?
+	end
+
+	def break_green?
+		high > green and low < green
+	end
+
+	def break_red?
+		high > red   and low < red
 	end
 
 	private
